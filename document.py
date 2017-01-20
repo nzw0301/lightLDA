@@ -53,23 +53,8 @@ class Document(object):
     def get_word(self, word_id: int):
         return self.i2w[word_id]
 
-    def get_minibatch(self, nb_minibatch: int):
-        return [self.get_document(doc_id=doc_id)
-                for doc_id in np.random.randint(low=0,
-                                                high=self.D,
-                                                size=nb_minibatch)]
-
     def get_ith_doc_len(self, doc_id: int):
         return self.doc_lengths[doc_id]
 
     def get_doc_lengths(self):
         return self.doc_lengths
-
-if __name__ == '__main__':
-    d = Document()
-    print(d.fit_transform("sample.txt"))
-    print(d.get_doc_lengths())
-    print(d.get_ith_doc_len(0))
-    print(d.get_vocabulary())
-    print(d.get_nb_docs())
-    print(d.get_nb_vocab())
