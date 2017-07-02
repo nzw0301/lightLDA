@@ -28,33 +28,33 @@ class Document(object):
             self.D = len(self.docs)
         return self
 
-    def fit_transform(self, path: str):
+    def fit_transform(self, path: str) -> list:
         self.fit(path=path)
         return self.docs
 
-    def transform(self, doc: str):
+    def transform(self, doc: str) -> list:
         return [self.w2i[w] for w in doc.split()]
 
-    def get_documents(self):
+    def get_documents(self) -> list:
         return self.docs
 
-    def get_document(self, doc_id: int):
+    def get_document(self, doc_id: int) -> list:
         return self.docs[doc_id]
 
-    def get_vocabulary(self):
+    def get_vocabulary(self) -> dict:
         return self.w2i
 
-    def get_nb_docs(self):
+    def get_num_docs(self) -> int:
         return self.D
 
-    def get_nb_vocab(self):
+    def get_num_vocab(self) -> int:
         return self.V
 
-    def get_word(self, word_id: int):
+    def get_word(self, word_id: int) -> int:
         return self.i2w[word_id]
 
-    def get_ith_doc_len(self, doc_id: int):
+    def get_ith_doc_len(self, doc_id: int) -> int:
         return self.doc_lengths[doc_id]
 
-    def get_doc_lengths(self):
+    def get_doc_lengths(self) -> list:
         return self.doc_lengths

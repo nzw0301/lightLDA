@@ -4,11 +4,11 @@ from document import Document
 from alias import AliasSampler, SparseAliasSampler
 
 class lightLDA(object):
-    def __init__(self, K: int, docs: Document, nb_MH=2):
+    def __init__(self, K: int, docs: Document, num_MH=2) -> None:
         self.K = K
         self._documents = docs.get_documents()
-        self._V = docs.get_nb_vocab()
-        self._D = docs.get_nb_docs()
+        self._V = docs.get_num_vocab()
+        self._D = docs.get_num_docs()
         self._beta = 0.1
         self._Vbeta = self._V * self._beta
         self._alpha = 0.01
@@ -17,10 +17,10 @@ class lightLDA(object):
         self._ndk = np.zeros((self._D, self.K)).astype(np.int32)
         self._nk = np.zeros(self.K).astype(np.int32)
         self._z = []
-        self.nb_MH = nb_MH
+        self.num_MH = num_MH
 
 
-    def fit(self, nb_iterations=300):
+    def fit(self, num_iterations=300) -> None:
         # random init topic
         for doc_id, doc in enumerate(self._documents):
             doc_topic = np.random.randint(self.K, size=doc.shape[0], dtype=np.uint32)
@@ -34,9 +34,7 @@ class lightLDA(object):
         denominator_part_beta_nk_or_beta = self.K * self._Vbeta
         denominator_nk_or_beta = np.sum(self._nk) + denominator_part_beta_nk_or_beta
 
-        for ite in range(1, nb_iterations+1):
-            print("\r", ite, end="")
-
+        for ite in range(1, num_iterations+1):
             # create alpha table
             word_proposal_denom = (self._nk+self._Vbeta)
             beta_talbe = AliasSampler(p=self._beta/word_proposal_denom)
@@ -51,7 +49,7 @@ class lightLDA(object):
                 N_d = w_d.shape[0]
                 for i, w in enumerate(w_d):
                     old_topic = s = self._z[d][i]
-                    for _ in range(self.nb_MH):
+                    for _ in range(self.num_MH):
 
                         # word proposal
                         nk_or_beta = np.random.rand()*denominator_nk_or_beta
@@ -143,32 +141,32 @@ class lightLDA(object):
                         self._ndk[d, s] += 1
                         self._nk[s] += 1
 
-    def word_predict(self, topic: int):
+    def word_predict(self, topic: int) -> np.ndarray:
         return (self._nkv[topic, :] + self._beta) / (self._nk[topic] + self._Vbeta)
 
-    def topic_predict(self, doc_id: int):
+    def topic_predict(self, doc_id: int) -> np.ndarray:
         p = self._ndk[doc_id, :] + self._alpha
         return p / np.sum(p)
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     np.random.seed(1112)
 
     K = 2
-    docs = Document().fit("./data.txt")
-    model = lightLDA(K=K, docs=docs, nb_MH=2)
-    model.fit(nb_iterations=1000)
+    docs = Document().fit('./data.txt')
+    model = lightLDA(K=K, docs=docs, num_MH=2)
+    model.fit(num_iterations=1000)
 
-    print("")
     for k in range(K):
         d = {docs.get_word(i): p for i, p in enumerate(model.word_predict(topic=k))}
         for v, p in sorted(d.items(), key=lambda x: -x[1]):
             print(v, p)
         print()
 
-    for doc_id in range(docs.get_nb_docs()):
+    for doc_id in range(docs.get_num_docs()):
         theta = model.topic_predict(doc_id=doc_id)
         topics = model._z[doc_id]
         print(theta)
         for w, z in zip(docs.get_document(doc_id), topics):
             print(docs.get_word(w), z)
-        print("--------------")
+        print('--------------')
