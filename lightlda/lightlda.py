@@ -1,12 +1,14 @@
 import numpy as np
-
-from document import Document
-from alias import AliasSampler, SparseAliasSampler
+import os
+import sys
+from pathlib import Path
+from .document import Document
+from .alias import AliasSampler, SparseAliasSampler
 
 class lightLDA(object):
-    def __init__(self, K: int, docs: Document, num_MH=2) -> None:
+    def __init__(self, K, docs, num_MH=2):
         self.K = K
-        self._documents = docs.get_documents()
+        self._documents = docs.docs
         self._V = docs.get_num_vocab()
         self._D = docs.get_num_docs()
         self._beta = 0.1
@@ -20,7 +22,7 @@ class lightLDA(object):
         self.num_MH = num_MH
 
 
-    def fit(self, num_iterations=300) -> None:
+    def fit(self, num_iterations=300):
         # random init topic
         for doc_id, doc in enumerate(self._documents):
             doc_topic = np.random.randint(self.K, size=doc.shape[0], dtype=np.uint32)
@@ -141,10 +143,10 @@ class lightLDA(object):
                         self._ndk[d, s] += 1
                         self._nk[s] += 1
 
-    def word_predict(self, topic: int) -> np.ndarray:
+    def word_predict(self, topic) :
         return (self._nkv[topic, :] + self._beta) / (self._nk[topic] + self._Vbeta)
 
-    def topic_predict(self, doc_id: int) -> np.ndarray:
+    def topic_predict(self, doc_id) :
         p = self._ndk[doc_id, :] + self._alpha
         return p / np.sum(p)
 
@@ -153,7 +155,9 @@ if __name__ == '__main__':
     np.random.seed(1112)
 
     K = 2
-    docs = Document().fit('./data.txt')
+    # path = os.path.join(os.path.dirname(__file__) ,'./data.txt')
+    path = Path(sys.argv[1])
+    docs = Document().fit( str(path) )
     model = lightLDA(K=K, docs=docs, num_MH=2)
     model.fit(num_iterations=1000)
 
