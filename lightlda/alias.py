@@ -6,7 +6,7 @@ class AliasSampler(object):
     alias table for arange topics.
     p: store probability np.ndarray,  [0.1, 0.5, 0.4]
     """
-    def __init__(self, p: np.ndarray):
+    def __init__(self, p):
         self.build_table(p)
 
     def sample(self):
@@ -17,7 +17,7 @@ class AliasSampler(object):
         else:
             return self.a[k]
 
-    def build_table(self, p: np.ndarray):
+    def build_table(self, p):
         self._K = len(p)
         p /= np.sum(p)
         self.a = np.zeros(self._K, dtype=np.uint32)
@@ -47,7 +47,7 @@ class SparseAliasSampler(AliasSampler):
     p: store probability np.ndarray,  [0.1, 0.5, 0.4]
     topics: np.array or list. [100, 20, 1000]
     """
-    def __init__(self, p: np.ndarray, topics: np.ndarray):
+    def __init__(self, p, topics):
         self.build_table(p, topics)
 
     def sample(self):
@@ -59,7 +59,7 @@ class SparseAliasSampler(AliasSampler):
         else:
             return self.a[k]
 
-    def build_table(self, p: np.ndarray, topics: np.ndarray):
+    def build_table(self, p, topics):
         self._K = len(p)
         p /= np.sum(p)
 
