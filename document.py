@@ -13,9 +13,9 @@ class Document(object):
     def fit(self, path: str):
         doc_length_list = []
         with open(path) as f:
-            for l in f:
+            for line in f:
                 doc = []
-                for w in l.split():
+                for w in line.split():
                     w_id = self.w2i.get(w, len(self.w2i))
                     doc.append(w_id)
                     if w_id == len(self.w2i):

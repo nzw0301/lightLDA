@@ -3,25 +3,26 @@ import numpy as np
 
 class AliasSampler(object):
     """
-    alias table for arange topics.
-    p: store probability np.ndarray,  [0.1, 0.5, 0.4]
+    Alias sampler for arange topics.
+    p: store probability `np.ndarray`, such as  `[0.1, 0.5, 0.4]`.
     """
+
     def __init__(self, p: np.ndarray):
-        self.build_table(p)
+        self._build_table(p)
 
     def sample(self):
-        u, k = np.modf(np.random.rand()*self._K)
+        u, k = np.modf(np.random.rand() * self._K)
         k = int(k)
         if u < self.v[k]:
             return k
         else:
             return self.a[k]
 
-    def build_table(self, p: np.ndarray):
+    def _build_table(self, p: np.ndarray):
         self._K = len(p)
         p /= np.sum(p)
         self.a = np.zeros(self._K, dtype=np.uint32)
-        self.v = np.array(self._K*p)
+        self.v = np.array(self._K * p)
 
         L, S = [], []
         for k, vk in enumerate(self.v):
@@ -44,14 +45,17 @@ class AliasSampler(object):
 class SparseAliasSampler(AliasSampler):
     """
     alias class for not arange topics (sparse)
-    p: store probability np.ndarray,  [0.1, 0.5, 0.4]
-    topics: np.array or list. [100, 20, 1000]
+    p: store probability `np.ndarray` such as [0.1, 0.5, 0.4].
+    topics: np.array or list such as `[100, 20, 1000]`
     """
+
     def __init__(self, p: np.ndarray, topics: np.ndarray):
-        self.build_table(p, topics)
+        assert len(p) == len(topics), "the length of `p` and `topics` should be same. "
+
+        self._build_table(p, topics)
 
     def sample(self):
-        u, k = np.modf(np.random.rand()*self._K)
+        u, k = np.modf(np.random.rand() * self._K)
         k = int(k)
 
         if u < self.v[k]:
@@ -59,12 +63,12 @@ class SparseAliasSampler(AliasSampler):
         else:
             return self.a[k]
 
-    def build_table(self, p: np.ndarray, topics: np.ndarray):
+    def _build_table(self, p: np.ndarray, topics: np.ndarray):
         self._K = len(p)
         p /= np.sum(p)
 
         self.a = np.zeros(self._K, dtype=np.uint32)
-        self.v = np.array(self._K*p)
+        self.v = np.array(self._K * p)
         self.topics = topics
 
         L, S = [], []

@@ -3,6 +3,7 @@ import numpy as np
 from document import Document
 from alias import AliasSampler, SparseAliasSampler
 
+
 class lightLDA(object):
     def __init__(self, K: int, docs: Document, num_MH=2) -> None:
         self.K = K
@@ -12,13 +13,12 @@ class lightLDA(object):
         self._beta = 0.1
         self._Vbeta = self._V * self._beta
         self._alpha = 0.01
-        self._sum_alpha = 0.1*K
+        self._sum_alpha = 0.1 * K
         self._nkv = np.zeros((self.K, self._V)).astype(np.int32)
         self._ndk = np.zeros((self._D, self.K)).astype(np.int32)
         self._nk = np.zeros(self.K).astype(np.int32)
         self._z = []
         self.num_MH = num_MH
-
 
     def fit(self, num_iterations=300) -> None:
         # random init topic
@@ -34,10 +34,10 @@ class lightLDA(object):
         denominator_part_beta_nk_or_beta = self.K * self._Vbeta
         denominator_nk_or_beta = np.sum(self._nk) + denominator_part_beta_nk_or_beta
 
-        for ite in range(1, num_iterations+1):
+        for ite in range(1, num_iterations + 1):
             # create alpha table
-            word_proposal_denom = (self._nk+self._Vbeta)
-            beta_talbe = AliasSampler(p=self._beta/word_proposal_denom)
+            word_proposal_denom = (self._nk + self._Vbeta)
+            beta_talbe = AliasSampler(p=self._beta / word_proposal_denom)
             word_tables = []
             for v in range(self._V):
                 topics = np.nonzero(self._nkv[:, v])[0]
@@ -52,7 +52,7 @@ class lightLDA(object):
                     for _ in range(self.num_MH):
 
                         # word proposal
-                        nk_or_beta = np.random.rand()*denominator_nk_or_beta
+                        nk_or_beta = np.random.rand() * denominator_nk_or_beta
 
                         if nk_or_beta < denominator_part_beta_nk_or_beta:
                             t = beta_talbe.sample()
@@ -85,16 +85,16 @@ class lightLDA(object):
                                 ntw_beta -= 1.
                                 nt_Vbeta -= 1.
 
-                            pi_nominator   = ntd_alpha*ntw_beta*ns_Vbeta*proposal_nominator
-                            pi_denominator = nsd_alpha*nsw_beta*nt_Vbeta*proposal_denominator
+                            pi_nominator = ntd_alpha * ntw_beta * ns_Vbeta * proposal_nominator
+                            pi_denominator = nsd_alpha * nsw_beta * nt_Vbeta * proposal_denominator
 
-                            pi = (pi_nominator/pi_denominator).item()
+                            pi = (pi_nominator / pi_denominator).item()
 
                             m = -(np.random.rand() < pi)
                             s = (t & m) | (s & ~m)
 
                         # doc proposal
-                        nd_or_alpha = np.random.rand() * (N_d+self._sum_alpha)
+                        nd_or_alpha = np.random.rand() * (N_d + self._sum_alpha)
 
                         if N_d > nd_or_alpha:
                             t = self._z[d][int(nd_or_alpha)]
@@ -105,7 +105,7 @@ class lightLDA(object):
                             nsd = self._ndk[d, s]
                             ntd = self._ndk[d, t]
 
-                            nsd_alpha = proposal_nominator   = nsd + self._alpha
+                            nsd_alpha = proposal_nominator = nsd + self._alpha
                             ntd_alpha = proposal_denominator = ntd + self._alpha
                             nsw_beta = self._nkv[s, w] + self._beta
                             ntw_beta = self._nkv[t, w] + self._beta
@@ -122,10 +122,10 @@ class lightLDA(object):
                                 ntw_beta -= 1.
                                 nt_Vbeta -= 1.
 
-                            pi_nominator   = ntd_alpha*ntw_beta*ns_Vbeta*proposal_nominator
-                            pi_denominator = nsd_alpha*nsw_beta*nt_Vbeta*proposal_denominator
+                            pi_nominator = ntd_alpha * ntw_beta * ns_Vbeta * proposal_nominator
+                            pi_denominator = nsd_alpha * nsw_beta * nt_Vbeta * proposal_denominator
 
-                            pi = (pi_nominator/pi_denominator).item()
+                            pi = (pi_nominator / pi_denominator).item()
                             m = -(np.random.rand() < pi)
                             s = (t & m) | (s & ~m)
 
