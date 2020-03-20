@@ -157,16 +157,27 @@ if __name__ == '__main__':
     model = lightLDA(K=K, docs=docs, num_MH=2)
     model.fit(num_iterations=1000)
 
+    print('# Word distributions per latent class')
     for k in range(K):
+        print('## φ of latent class of {}'.format(k))
+        print('word: probability')
         d = {docs.get_word(i): p for i, p in enumerate(model.word_predict(topic=k))}
         for v, p in sorted(d.items(), key=lambda x: -x[1]):
-            print(v, p)
+            print('{}: {:.3f}'.format(v, p))
         print()
 
+    print('# Topic distributions per document')
     for doc_id in range(docs.get_num_docs()):
+        print('## Topic information of document {}'.format(doc_id))
         theta = model.topic_predict(doc_id=doc_id)
         topics = model._z[doc_id]
-        print(theta)
+        print('Propotion of topics')
+        print('topic: θ_{document_id, latent_class}')
+        for k, p in enumerate(theta):
+            print('{}: {:.3f}'.format(k, p))
+
+        print('\nAssigned latent class per word')
+        print('word: latent class')
         for w, z in zip(docs.get_document(doc_id), topics):
-            print(docs.get_word(w), z)
-        print('--------------')
+            print('{}: {} '.format(docs.get_word(w), z))
+        print('--------------\n')
